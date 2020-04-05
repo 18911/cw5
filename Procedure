@@ -1,0 +1,28 @@
+create procedure ProcedurePromoteStudents @StudiesName varchar(100), @Semester int
+as
+begin
+declare 
+@idEnrollment int,
+@newIdEnrollment int,
+@idStudy int
+print 'cos tam'
+select @idEnrollment = IdEnrollment,@idStudy = Enrollment.IdStudy from Enrollment inner join Studies on Enrollment.IdStudy = Studies.IdStudy where semester = @Semester 
+and Studies.Name = @StudiesName 
+print 'A ' + Cast(@idEnrollment as varchar) + ' , ' + Cast(@idStudy as varchar)
+if not exists (select Semester from Enrollment where Semester = (@Semester + 1))
+begin
+print 'not exists ' + cast((@Semester + 1) as varchar)
+select @newIdEnrollment = (max(IdEnrollment))+1 from Enrollment
+select @idStudy = IdStudy from Studies where Studies.Name = @StudiesName
+insert into Enrollment values(@newIdEnrollment,(@Semester+1),@idStudy,'2020-11-11')
+update Student set IdEnrollment = @newIdEnrollment where IdEnrollment = @idEnrollment
+end
+else 
+begin
+select @newIdEnrollment = IdEnrollment,@idStudy = Enrollment.IdStudy from Enrollment inner join Studies on Enrollment.IdStudy = Studies.IdStudy where semester = (@Semester + 1)
+and Studies.Name = @StudiesName
+print 'A ' + Cast(@idEnrollment as varchar) + ' , ' + Cast(@idStudy as varchar)
+update Student set IdEnrollment = @newIdEnrollment where IdEnrollment = @idEnrollment
+end
+end
+go
